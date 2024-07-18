@@ -1,0 +1,618 @@
+meta:
+  extract_upstream: False
+tasks:
+  ###################################################################################################################
+  #################################### Check_video  ##################################################
+  ###################################################################################################################
+  - source: src/check_files.py
+    name: Video_cam1
+    product:
+      nb: products/check_video_cam1.ipynb #
+    params:
+      files:
+        - data/videos/cam1.mp4
+
+  - source: src/check_files.py
+    name: Video_cam2
+    product:
+      nb: products/check_video_cam2.ipynb #
+    params:
+      files:
+        - data/videos/cam2.mp4
+
+  - source: src/check_files.py
+    name: Video_cam3
+    product:
+      nb: products/check_video_cam3.ipynb #
+    params:
+      files:
+        - data/videos/cam3.mp4
+
+  - source: src/check_files.py
+    name: Video_cam4
+    product:
+      nb: products/check_video_cam4.ipynb #
+    params:
+      files:
+        - data/videos/cam4.mp4
+
+  ###################################################################################################################
+  #################################### Check model  ##################################################
+
+  - source: src/check_files.py
+    name: Model CNN
+    product:
+      nb: products/check_model.ipynb #
+    params:
+      files:
+        - data/model/76_6_l.pt
+
+  ###################################################################################################################
+  #################################### Check tracker  ##################################################
+  ###################################################################################################################
+
+  - source: src/check_files.py
+    name: Tracker
+    product:
+      nb: products/check_tracker.ipynb #
+    params:
+      files:
+        - data/tracker/botsort.yaml
+
+  ###################################################################################################################
+  #################################### Check_dartclip  ##################################################
+  ###################################################################################################################
+
+  - source: src/check_files.py
+    name: Dartclip_cam1
+    product:
+      nb: products/check_dartclip_cam1.ipynb
+    params:
+      files:
+        - data/dartclip/cam1.dartclip
+
+  - source: src/check_files.py
+    name: Dartclip_cam2
+    product:
+      nb: products/check_dartclip_cam2.ipynb
+    params:
+      files:
+        - data/dartclip/cam2.dartclip
+
+  - source: src/check_files.py
+    name: Dartclip_cam3
+    product:
+      nb: products/check_dartclip_cam3.ipynb
+    params:
+      files:
+        - data/dartclip/cam3.dartclip
+
+  - source: src/check_files.py
+    name: Dartclip_cam4
+    product:
+      nb: products/check_dartclip_cam4.ipynb
+    params:
+      files:
+        - data/dartclip/cam4.dartclip
+
+  ###################################################################################################################
+  #################################### Check tracker + CNN ##################################################
+
+  - source: src/validate_task2.py
+    name: Valide_CNN_Tracker
+    product:
+      nb: products/valide_CNN_Tracker.ipynb
+    params:
+      file1: products/check_model.ipynb
+      file2: products/check_tracker.ipynb
+    upstream:
+      - Model CNN
+      - Tracker
+
+  ###################################################################################################################
+  #################################### Check camera + video  ##################################################
+  ###################################################################################################################
+
+  - source: src/validate_task2.py
+    name: Cam1_source_video
+    product:
+      nb: products/valide_Camera1_Video.ipynb
+    params:
+      file1: products/check_video_cam1.ipynb
+      file2: products/check_dartclip_cam1.ipynb
+    upstream:
+      - Video_cam1
+      - Dartclip_cam1
+
+  - source: src/validate_task2.py
+    name: Cam2_source_video
+    product:
+      nb: products/valide_Camera2_Video.ipynb
+    params:
+      file1: products/check_video_cam2.ipynb
+      file2: products/check_dartclip_cam2.ipynb
+    upstream:
+      - Video_cam2
+      - Dartclip_cam2
+
+  - source: src/validate_task2.py
+    name: Cam3_source_video
+    product:
+      nb: products/valide_Camera3_Video.ipynb
+    params:
+      file1: products/check_video_cam3.ipynb
+      file2: products/check_dartclip_cam3.ipynb
+    upstream:
+      - Video_cam3
+      - Dartclip_cam3
+
+  - source: src/validate_task2.py
+    name: Cam4_source_video
+    product:
+      nb: products/valide_Camera4_Video.ipynb
+    params:
+      file1: products/check_video_cam4.ipynb
+      file2: products/check_dartclip_cam4.ipynb
+    upstream:
+      - Video_cam4
+      - Dartclip_cam4
+
+  ###################################################################################################################
+  #################################### Check all_source video ##################################################
+  ###################################################################################################################
+  - source: src/validate_task4.py
+    name: Valide_all_source_video
+    product:
+      nb: products/valide_all_source_video.ipynb
+    params:
+      file1: products/valide_Camera1_Video.ipynb
+      file2: products/valide_Camera2_Video.ipynb
+      file3: products/valide_Camera3_Video.ipynb
+      file4: products/valide_Camera4_Video.ipynb
+    upstream:
+      - Cam1_source_video
+      - Cam2_source_video
+      - Cam3_source_video
+      - Cam4_source_video
+
+  #   ###################################################################################################################
+  # #################################### Check detections ###########################################################
+  # ###################################################################################################################
+
+  - source: src/validate_task4.py
+    name: Valide_all_detection
+    product:
+      nb: products/valide_all_detection.ipynb
+    params:
+      file1: data/detections/cam1.csv
+      file2: data/detections/cam2.csv
+      file3: data/detections/cam3.csv
+      file4: data/detections/cam4.csv
+    upstream:
+      - YOLO_CAM1
+      - YOLO_CAM2
+      - YOLO_CAM3
+      - YOLO_CAM4
+
+  ###################################################################################################################
+  #################################### Run Yolo si pas de fichier de detections######################################
+  ###################################################################################################################
+  - source: src/run_yolo.py
+    name: YOLO_CAM1
+    product:
+      nb: products/run_yolo_cam1.ipynb #
+      data: data/detections/cam1.csv
+    params:
+      video_path: data/videos/cam1.mp4
+      dartclip_path: data/dartclip/cam1.dartclip
+      output_path: data/detections/cam1.csv
+      model_path: data/model/76_6_l.pt
+      tracker_path: data/tracker/botsort.yaml
+    upstream:
+      - Valide_CNN_Tracker
+      - Valide_all_source_video
+
+  - source: src/run_yolo.py
+    name: YOLO_CAM2
+    product:
+      nb: products/run_yolo_cam2.ipynb #
+      data: data/detections/cam2.csv
+    params:
+      video_path: data/videos/cam2.mp4
+      dartclip_path: data/dartclip/cam2.dartclip
+      output_path: data/detections/cam2.csv
+      model_path: data/model/76_6_l.pt
+      tracker_path: data/tracker/botsort.yaml
+    upstream:
+      - Valide_CNN_Tracker
+      - Valide_all_source_video
+
+  - source: src/run_yolo.py
+    name: YOLO_CAM3
+    product:
+      nb: products/run_yolo_cam3.ipynb #
+      data: data/detections/cam3.csv
+    params:
+      video_path: data/videos/cam3.mp4
+      dartclip_path: data/dartclip/cam3.dartclip
+      output_path: data/detections/cam3.csv
+      model_path: data/model/76_6_l.pt
+      tracker_path: data/tracker/botsort.yaml
+    upstream:
+      - Valide_CNN_Tracker
+      - Valide_all_source_video
+
+  - source: src/run_yolo.py
+    name: YOLO_CAM4
+    product:
+      nb: products/run_yolo_cam4.ipynb #
+      data: data/detections/cam4.csv
+    params:
+      video_path: data/videos/cam4.mp4
+      dartclip_path: data/dartclip/cam4.dartclip
+      output_path: data/detections/cam4.csv
+      model_path: data/model/76_6_l.pt
+      tracker_path: data/tracker/botsort.yaml
+    upstream:
+      - Valide_CNN_Tracker
+      - Valide_all_source_video
+
+  ###################################################################################################################
+  #################################### Check Matrice Extrinsèques ##################################################
+  ###################################################################################################################
+
+  - source: src/check_files.py
+    name: check_extrinsic_cam1
+    product:
+      nb: products/check_extrinsic_cam1.ipynb #
+    params:
+      files:
+        - data/matrice_extrinseque/cam1_E.txt
+    upstream:
+      - Valide_all_detection
+
+  - source: src/check_files.py
+    name: check_extrinsic_cam2
+    product:
+      nb: products/check_extrinsic_cam2.ipynb #
+    params:
+      files:
+        - data/matrice_extrinseque/cam2_E.txt
+    upstream:
+      - Valide_all_detection
+
+  - source: src/check_files.py
+    name: check_extrinsic_cam3
+    product:
+      nb: products/check_extrinsic_cam3.ipynb #
+    params:
+      files:
+        - data/matrice_extrinseque/cam3_E.txt
+    upstream:
+      - Valide_all_detection
+
+  - source: src/check_files.py
+    name: check_extrinsic_cam4
+    product:
+      nb: products/check_extrinsic_cam4.ipynb #
+    params:
+      files:
+        - data/matrice_extrinseque/cam4_E.txt
+    upstream:
+      - Valide_all_detection
+
+  ###################################################################################################################
+  #################################### Check Matrice Intrinsèques ##################################################
+  ###################################################################################################################
+
+  - source: src/check_files.py
+    name: check_intrinsic_cam1
+    product:
+      nb: products/check_intrinsic_cam1.ipynb #
+    params:
+      files:
+        - data/matrice_intrinseque/cam1_I.txt
+    upstream:
+      - Valide_all_detection
+
+  - source: src/check_files.py
+    name: check_intrinsic_cam2
+    product:
+      nb: products/check_intrinsic_cam2.ipynb #
+    params:
+      files:
+        - data/matrice_intrinseque/cam2_I.txt
+    upstream:
+      - Valide_all_detection
+
+  - source: src/check_files.py
+    name: check_intrinsic_cam3
+    product:
+      nb: products/check_intrinsic_cam3.ipynb #
+    params:
+      files:
+        - data/matrice_intrinseque/cam3_I.txt
+    upstream:
+      - Valide_all_detection
+
+  - source: src/check_files.py
+    name: check_intrinsic_cam4
+    product:
+      nb: products/check_intrinsic_cam4.ipynb #
+    params:
+      files:
+        - data/matrice_intrinseque/cam4_I.txt
+    upstream:
+      - Valide_all_detection
+
+  # ###################################################################################################################
+  # #################################### Créate matrice de projection ##################################################
+  # ###################################################################################################################
+
+  - source: src/import_PM.py
+    name: create_matrice_projection1
+    product:
+      nb: products/import_PM_1.ipynb #
+      data: products/matrice_projection_cam1.txt
+    params:
+      input_path: data/matrice_intrinseque/cam1_I.txt
+      input_path2: data/matrice_extrinseque/cam1_E.txt
+      output_path: products/matrice_projection_cam1.txt
+    upstream:
+      - check_intrinsic_cam1
+      - check_extrinsic_cam1
+
+  - source: src/import_PM.py
+    name: create_matrice_projection2
+    product:
+      nb: products/import_PM_2.ipynb #
+      data: products/matrice_projection_cam2.txt
+    params:
+      input_path: data/matrice_intrinseque/cam2_I.txt
+      input_path2: data/matrice_extrinseque/cam2_E.txt
+      output_path: products/matrice_projection_cam2.txt
+    upstream:
+      - check_intrinsic_cam2
+      - check_extrinsic_cam2
+
+  - source: src/import_PM.py
+    name: create_matrice_projection3
+    product:
+      nb: products/import_PM_3.ipynb #
+      data: products/matrice_projection_cam3.txt
+    params:
+      input_path: data/matrice_intrinseque/cam3_I.txt
+      input_path2: data/matrice_extrinseque/cam3_E.txt
+      output_path: products/matrice_projection_cam3.txt
+    upstream:
+      - check_intrinsic_cam3
+      - check_extrinsic_cam3
+
+  - source: src/import_PM.py
+    name: create_matrice_projection4
+    product:
+      nb: products/import_PM_4.ipynb #
+      data: products/matrice_projection_cam4.txt
+    params:
+      input_path: data/matrice_intrinseque/cam4_I.txt
+      input_path2: data/matrice_extrinseque/cam4_E.txt
+      output_path: products/matrice_projection_cam4.txt
+    upstream:
+      - check_intrinsic_cam4
+      - check_extrinsic_cam4
+
+  - source: src/validate_task4.py
+    name: Valide_all_matrice_projection
+    product:
+      nb: products/valide_all_matrice_projection.ipynb
+    params:
+      file1: products/matrice_projection_cam1.txt
+      file2: products/matrice_projection_cam2.txt
+      file3: products/matrice_projection_cam3.txt
+      file4: products/matrice_projection_cam4.txt
+    upstream:
+      - create_matrice_projection1
+      - create_matrice_projection2
+      - create_matrice_projection3
+      - create_matrice_projection4
+
+  # ###################################################################################################################
+  # #################################### Check Matrice de distortion ##################################################
+
+  - source: src/validate_task4.py
+    name: Matrice_distortion
+    product:
+      nb: products/check_distortion.ipynb
+    params:
+      file1: data/distortion/cam1_d.txt
+      file2: data/distortion/cam2_d.txt
+      file3: data/distortion/cam3_d.txt
+      file4: data/distortion/cam4_d.txt
+    upstream:
+      - Valide_all_detection
+
+  # ###################################################################################################################
+  # #################################### Correction distortion ###########################################################
+  - source: src/distortion.py
+    name: Distortion_cam1
+    product:
+      nb: products/distortion_1.ipynb #
+      data: products/distortion_cam1.csv
+    params:
+      distortion: data/distortion/cam1_d.txt
+      detections_cam: data/detections/cam1.csv
+      matrice_I: data/matrice_intrinseque/cam1_I.txt
+      output_path: products/distortion_cam1.csv
+    upstream:
+      - check_intrinsic_cam1
+      - Matrice_distortion
+
+  - source: src/distortion.py
+    name: Distortion_cam2
+    product:
+      nb: products/distortion_2.ipynb #
+      data: products/distortion_cam2.csv
+    params:
+      distortion: data/distortion/cam2_d.txt
+      detections_cam: data/detections/cam2.csv
+      matrice_I: data/matrice_intrinseque/cam2_I.txt
+      output_path: products/distortion_cam2.csv
+    upstream:
+      - check_intrinsic_cam2
+      - Matrice_distortion
+
+  - source: src/distortionx2_y1.py
+    name: Distortion_cam3
+    product:
+      nb: products/distortion_3.ipynb #
+      data: products/distortion_cam3.csv
+    params:
+      distortion: data/distortion/cam3_d.txt
+      detections_cam: data/detections/cam3.csv
+      matrice_I: data/matrice_intrinseque/cam3_I.txt
+      output_path: products/distortion_cam3.csv
+    upstream:
+      - check_intrinsic_cam3
+      - Matrice_distortion
+
+  - source: src/distortionx2_y1.py
+    name: Distortion_cam4
+    product:
+      nb: products/distortion_4.ipynb #
+      data: products/distortion_cam4.csv
+    params:
+      distortion: data/distortion/cam4_d.txt
+      detections_cam: data/detections/cam4.csv
+      matrice_I: data/matrice_intrinseque/cam4_I.txt
+      output_path: products/distortion_cam4.csv
+    upstream:
+      - check_intrinsic_cam4
+      - Matrice_distortion
+
+  - source: src/validate_task4.py
+    name: Valide_all_distortion
+    product:
+      nb: products/valide_all_distortion.ipynb
+    params:
+      file1: products/distortion_cam1.csv
+      file2: products/distortion_cam2.csv
+      file3: products/distortion_cam3.csv
+      file4: products/distortion_cam4.csv
+    upstream:
+      - Distortion_cam1
+      - Distortion_cam2
+      - Distortion_cam3
+      - Distortion_cam4
+  ###################################################################################################################
+  #################################### Associations ###########################################################
+
+  - source: src/association.py
+    name: Association_cam
+    product:
+      nb: products/association.ipynb #
+      data: products/association_cam.csv
+    params:
+      detections_cam_1: products/distortion_cam1.csv
+      detections_cam_2: products/distortion_cam2.csv
+      detections_cam_3: products/distortion_cam3.csv
+      detections_cam_4: products/distortion_cam4.csv
+      output_path: products/association_cam.csv
+    upstream:
+      - Valide_all_distortion
+  # ###################################################################################################################
+  # #################################### Triangulation ###########################################################
+  # ###################################################################################################################
+
+  - source: src/triangulation.py
+    name: Triangulation
+    product:
+      nb: products/triangulation.ipynb #
+      data: products/triangulation.csv
+    params:
+      association: products/association_cam.csv
+      matrice_projection_cam1: products/matrice_projection_cam1.txt
+      matrice_projection_cam2: products/matrice_projection_cam2.txt
+      matrice_projection_cam3: products/matrice_projection_cam3.txt
+      matrice_projection_cam4: products/matrice_projection_cam4.txt
+      output_path: products/triangulation.csv
+    upstream:
+      - Association_cam
+      - Valide_all_matrice_projection
+  # ###################################################################################################################
+  # #################################### Check Positions3D ###########################################################
+  # ###################################################################################################################
+
+  - source: src/check_files.py
+    name: Positions3D
+    product:
+      nb: products/positions3D.ipynb #
+    params:
+      files:
+        - products/triangulation.csv
+    upstream:
+      - Triangulation
+  # ###################################################################################################################
+  # #################################### Visualisation ###########################################################
+  # ###################################################################################################################
+
+  - source: src/plot_position.py
+    name: Visualisation
+    product:
+      nb: products/visualisation.ipynb #
+    params:
+      positions3D: products/triangulation.csv
+    upstream:
+      - Positions3D
+  # ###################################################################################################################
+  # #################################### Calcul de la vitesse ###########################################################
+  # ###################################################################################################################
+
+  - source: src/speed.py
+    name: Speed
+    product:
+      nb: products/speed.ipynb #
+      data: products/speed.csv
+    params:
+      positions3D: products/triangulation.csv
+      output_path: products/speed.csv
+    upstream:
+      - Positions3D
+  # ###################################################################################################################
+  # #################################### Calcul de l'accélération ###########################################################
+  # ###################################################################################################################
+
+  - source: src/acceleration.py
+    name: Acceleration
+    product:
+      nb: products/acceleration.ipynb #
+      data: products/acceleration.csv
+    params:
+      speed: products/speed.csv
+      output_path: products/acceleration.csv
+    upstream:
+      - Speed
+  # ###################################################################################################################
+  # #################################### Plot de la vitesse ###########################################################
+  # ###################################################################################################################
+
+  - source: src/plot_speed.py
+    name: Plot_speed
+    product:
+      nb: products/plot_speed.ipynb #
+    params:
+      speed: products/speed.csv
+    upstream:
+      - Speed
+
+  # ###################################################################################################################
+  # #################################### Plot de l'accélération ###########################################################
+  # ###################################################################################################################
+
+  - source: src/plot_acceleration.py
+    name: Plot_acceleration
+    product:
+      nb: products/plot_acceleration.ipynb #
+    params:
+      acceleration: products/acceleration.csv
+    upstream:
+      - Acceleration
