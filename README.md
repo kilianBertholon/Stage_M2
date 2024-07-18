@@ -11,21 +11,24 @@ source {path-to-venv}/bin/activate
 {path-to-venv}\Scripts\activate.bat
 # activate environment (windows PowerShell)
 {path-to-venv}\Scripts\Activate.ps1
+
+cd data
+mkdir video
+add video # "Cam1", "Cam2", "Cam3", "Cam4"
 ```
 
 ## Code editor integration
 
-* If using Jupyter, [click here](https://docs.ploomber.io/en/latest/user-guide/jupyter.html)
-* If using VSCode, PyCharm, or Spyder, [click here](https://docs.ploomber.io/en/latest/user-guide/editors.html)
-
-
+- If using Jupyter, [click here](https://docs.ploomber.io/en/latest/user-guide/jupyter.html)
+- If using VSCode, PyCharm, or Spyder, [click here](https://docs.ploomber.io/en/latest/user-guide/editors.html)
 
 ## Running the pipeline
 
 ```sh
-ploomber build
+ploomber build # run the pipeline
+ploomber plot  # plot the pipeline
 ```
 
 ## Help
 
-* Need help? [Ask us anything on Slack!](https://ploomber.io/community)
+- Need help? [Ask us anything on Slack!](https://ploomber.io/community)
