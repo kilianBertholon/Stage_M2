@@ -12,6 +12,10 @@ source {path-to-venv}/bin/activate
 # activate environment (windows PowerShell)
 {path-to-venv}\Scripts\Activate.ps1
 
+# install dependencies
+pip install -r requirements.lock.txt
+
+
 cd data
 mkdir video
 add video # "Cam1", "Cam2", "Cam3", "Cam4"
