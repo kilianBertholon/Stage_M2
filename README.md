@@ -31,6 +31,7 @@ add video # "Cam1", "Cam2", "Cam3", "Cam4"
 ```sh
 ploomber build # run the pipeline
 ploomber plot  # plot the pipeline
+ploomber scaffold
 ```
 
 ## Help
